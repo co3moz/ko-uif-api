@@ -397,7 +397,7 @@ async function UpdateView(obj) {
   if (obj.type == 'string') {
     div.style.color = `rgba(${obj.color[0]}, ${obj.color[1]}, ${obj.color[2]}, ${obj.color[3] / 255})`;
     div.style.fontFamily = obj.font;
-    div.style.fontSize = obj.fontSize + 'pt';
+    div.style.fontSize = obj.fontSize + 'px';
     div.style.display = 'table';
 
     let line = (obj.style & 0x00100000) ? 'single' : 'multiple';
