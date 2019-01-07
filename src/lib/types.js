@@ -1,0 +1,25 @@
+module.exports = {
+  BASE: 0,
+  BUTTON: 1,
+  STATIC: 2,
+  PROGRESS: 3,
+  IMAGE: 4,
+  SCROLLBAR: 5,
+  STRING: 6,
+  TRACKBAR: 7,
+  EDIT: 8,
+
+  AREA: 9,
+  TOOLTIP: 10,
+
+  ICON: 11,
+  ICON_MANAGER: 12,
+
+  ICONSLOT: 13,
+  LIST: 14,
+
+  UNK15: 15,
+  UNK16: 16,
+  UNK17: 17,
+  FLASH: 18
+};

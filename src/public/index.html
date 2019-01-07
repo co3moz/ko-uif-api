@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Knight Online UIF Editor</title>
+
+  <link rel="stylesheet" href="//cdn.metroui.org.ua/v4/css/metro-all.min.css">
+  <link rel="stylesheet" href="//cdn.metroui.org.ua/v4/css/schemes/darcula.min.css">
+  <link rel="stylesheet" href="main.css">
+  <script src="//code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script src="//cdn.metroui.org.ua/v4/js/metro.min.js"></script>
+</head>
+<body>
+  <div data-role="appbar" data-expand-point="md">
+    <a href="#" class="brand no-hover">
+      <span class="pl-2 pr-2 bg-crimson">
+        Knight Online UIF Editor
+      </span>
+    </a>
+    <ul class="app-bar-menu">
+      <li class="open">
+        <a href="#"><span class="icon mif-file-upload"></span> <span>Open</span></a>
+      </li>
+      <li class="file_p" style="display: none">
+        <a href="#" class="active"><span class="icon mif-file-image"></span> <span class="file_p"></span></a>
+      </li>
+      <li class="json" style="display: none">
+        <a href="#"><span class="icon mif-barcode"></span> <span>JSON</span></a>
+      </li>
+      <li class="save" style="display: none">
+        <a href="#"><span class="icon mif-floppy-disk"></span> <span>Save</span></a>
+      </li>
+      <li class="close" style="display: none">
+        <a href="#"><span class="icon mif-cross"></span> <span>Close</span></a>
+      </li>
+    </ul>
+
+  </div>
+
+  <div class="dialog jsonDialog" data-role="dialog">
+    <div class="dialog-title">Json output</div>
+    <div class="dialog-content">
+      <textarea style="height: 350px; resize: none"></textarea>
+    </div>
+    <div class="dialog-actions">
+      <button class="button primary js-dialog-close">Ok</button>
+    </div>
+  </div>
+
+  <div class="dialog closeDialog" data-role="dialog">
+    <div class="dialog-title">Close?</div>
+    <div class="dialog-content">
+      All changes will be lost!
+    </div>
+    <div class="dialog-actions">
+      <button class="button  js-dialog-close">Cancel</button>
+      <button class="button alert discard  js-dialog-close">Discard changes</button>
+    </div>
+  </div>
+
+  <input type="file" style="display: none" accept=".uif">
+
+  <div class="grid">
+    <div class="row">
+      <div class="cell-4 cell-fixed">
+        <div class="pt-15">
+          <div class="half">
+            <ul data-role="treeview" class="tree">
+            </ul>
+          </div>
+
+          <hr>
+
+          <div class="other-half">
+            <div class="grid">
+              <div class="controls">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="pt-15">
+          <div id="view">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+#view>* {
+  border: 1px solid green;
+}
+
+.half {
+  height: calc(50vh - 50px);
+  overflow-y: auto;
+}
+
+.other-half {
+  height: calc(50vh - 60px);
+  overflow-y: auto;
+}
+
+
+[uif].hover {
+  outline: 1px solid blue;
+}
+
+
+[uif].picked {
+  outline: 1px solid yellow;
+}
+
+[uif]:hover {
+  outline: 1px solid red;
+}
+
+
+.tree span.sub {
+  color: yellow;
+}
+
+.tree .current>.caption .sub {
+  color: orange;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 8px;
+  background-color: #aaa;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-track {
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #545454;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #646464
+}
+
+.cell-fixed {
+  -webkit-box-flex: 0;
+  -ms-flex: 0 0 420px;
+  flex: 0 0 420px;
+  max-width: 420px;
+}
