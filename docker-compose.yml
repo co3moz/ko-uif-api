@@ -7,6 +7,8 @@ services:
     networks:
       application:
         ipv4_address: 10.0.0.10
+    command:
+      - up.sh
 networks:
   application:
     external:
