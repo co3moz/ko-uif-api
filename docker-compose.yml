@@ -2,8 +2,6 @@ version: '3'
 services:
   kouifapi:
     build: .
-    ports:
-     - "5000:80"
     volumes:
       - /container/ko-uif-api:/app/resource
     networks:
