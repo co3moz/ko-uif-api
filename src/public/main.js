@@ -27,6 +27,7 @@ $('.discard').on('click', function () {
   $('li.close').css({ display: 'none' });
   $('.tree').empty();
   $('#view').empty();
+  $('.controls').empty();
 })
 
 $('li.save').on('click', function () {
@@ -96,6 +97,8 @@ async function render(data, file) {
   $('li.save').css({ display: 'block' });
   $('li.json').css({ display: 'block' });
   $('li.close').css({ display: 'block' });
+  window.total = count(data);
+  window.loaded = 0;
 
   reverseChild(data);
 
@@ -107,161 +110,170 @@ async function render(data, file) {
 
   reverseChild(data);
 
-  $('.tree').data('treeview').options.onNodeClick = function (item) {
-    picked = item.children('.caption')[0];
-    if (!picked || !picked.uif) {
-      return;
-    }
+  loading(95);
 
-    $('[uif]').removeClass('picked');
-    if (picked.div) {
-      $(picked.div).addClass('picked');
-    } else {
-      let s = picked.father;
-      while (s) {
-        if (s.div) {
-          $(s.div).addClass('picked');
-          break;
-        }
-
-        s = s.father;
-      }
-    }
-
-    let uif = picked.uif;
-    let rows = [];
-
-    let cat = [
-      {
-        category: 'basics',
-        children: [
-          { key: 'type', type: 'text', readonly: true },
-          { key: 'name', type: 'text' },
-          { key: 'id', type: 'text' },
-        ]
-      },
-      {
-        category: 'position',
-        children: [
-          { key: 'x', type: 'number' },
-          { key: 'y', type: 'number' },
-          { key: 'width', type: 'number' },
-          { key: 'height', type: 'number' },
-          { key: 'mov_x', type: 'number' },
-          { key: 'mov_y', type: 'number' },
-          { key: 'mov_width', type: 'number' },
-          { key: 'mov_height', type: 'number' }
-        ]
-      },
-      {
-        category: 'others',
-        children: [
-          { key: 'style', type: 'number' },
-          { key: 'reserved', type: 'number' },
-          { key: 'tooltip', type: 'text' },
-          { key: 'sndOpen', type: 'text', caption: 'sound open' },
-          { key: 'sndClose', type: 'text', caption: 'sound close' }
-        ]
-      }
-    ];
-
-    if (uif.type == 'image') {
-      cat.push({
-        category: uif.type,
-        children: [
-          { key: 'texture', type: 'text' },
-          { key: 'crop.left', type: 'number' },
-          { key: 'crop.top', type: 'number' },
-          { key: 'crop.right', type: 'number' },
-          { key: 'crop.bottom', type: 'number' },
-          { key: 'animFrame', type: 'number' }
-        ]
-      })
-    } else if (uif.type == 'button') {
-      cat.push({
-        category: uif.type,
-        children: [
-          { key: 'click_x', type: 'number' },
-          { key: 'click_y', type: 'number' },
-          { key: 'click_width', type: 'number' },
-          { key: 'click_height', type: 'number' },
-          { key: 'sndOn', type: 'text', caption: 'sound hover' },
-          { key: 'sndClick', type: 'text', caption: 'sound click' }
-        ]
-      })
-    } else if (uif.type == 'string') {
-      cat.push({
-        category: uif.type,
-        children: [
-          { key: 'text', type: 'text' },
-          { key: 'font', type: 'text' },
-          { key: 'fontSize', type: 'number' },
-          { key: 'fontFlags', type: 'number' },
-          { key: 'color', type: 'color' }
-        ]
-      })
-    } else if (uif.type == 'area') {
-      cat.push({
-        category: uif.type,
-        children: [
-          { key: 'areaType', type: 'number' },
-        ]
-      })
-    }
-
-    for (let p of cat) {
-      let lrows = [];
-
-      for (let pick of p.children) {
-        if (pick.type == 'number') {
-          lrows.push(`<div class="row" style="margin: 0">
-        <div class="cell-5">${pick.caption || pick.key}</div>
-        <div class="cell-7">
-          <input type="number" class="mt-1" value="${access(uif, pick.key) || '0'}" key="${pick.key}">
-        </div>
-      </div>`);
-        } else if (pick.type == 'text') {
-          lrows.push(`<div class="row" style="margin: 0">
-        <div class="cell-5">${pick.caption || pick.key}</div>
-        <div class="cell-7">
-          <input type="text" class="mt-1" value="${access(uif, pick.key) || ''}" ${pick.readonly ? ' readonly' : ''} key="${pick.key}">
-        </div>
-      </div>`);
-        } else if (pick.type == 'color') {
-          let color = access(uif, pick.key);
-          /* eslint-disable no-undef */
-          lrows.push(`<div class="row" style="margin: 0">
-        <div class="cell-5">${pick.caption || pick.key}</div>
-        <div class="cell-7">
-        <input type="color" class="mt-1" value="${Metro.colors.rgb2hex({ r: color[0], g: color[1], b: color[2] })}" key="${pick.key}">
-        </div>
-        </div>`);
-          /* eslint-enable no-undef */
-        }
-      }
-
-      rows.push(`<div class="frame">
-        <div class="heading">${p.category}</div>
-        <div class="content">
-          <div class="p-2">
-            <div class="grid">
-              ${lrows.join('')}
-            </div>
-          </div>
-        </div>
-      </div>`)
-    }
-
-    $('.controls').html(`<div data-role="accordion" data-one-frame="false" data-show-active="false">${rows.join('')}</div>`)
-    $('.controls').find('input').on('change', function (e) {
-      let key = this.getAttribute('key');
-      accessAndSet(picked.uif, key, this.value);
-      UpdateAll(data);
-    });
-  }
+  $('.tree').data('treeview').options.onNodeClick = treeClick;
 
   view.innerHTML = "";
   view.appendChild(div);
+
+  loading(100);
+}
+
+function treeClick(item) {
+  picked = item.children('.caption')[0];
+  if (!picked || !picked.uif) {
+    return;
+  }
+
+  $('[uif]').removeClass('picked');
+  if (picked.div) {
+    $(picked.div).addClass('picked');
+  } else {
+    let s = picked.father;
+    while (s) {
+      if (s.div) {
+        $(s.div).addClass('picked');
+        break;
+      }
+
+      s = s.father;
+    }
+  }
+
+  let uif = picked.uif;
+  let rows = [];
+
+  let cat = [
+    {
+      category: 'basics',
+      children: [
+        { key: 'type', type: 'text', readonly: true },
+        { key: 'name', type: 'text' },
+        { key: 'id', type: 'text' },
+      ]
+    },
+    {
+      category: 'position',
+      children: [
+        { key: 'x', type: 'number' },
+        { key: 'y', type: 'number' },
+        { key: 'width', type: 'number' },
+        { key: 'height', type: 'number' },
+        { key: 'mov_x', type: 'number' },
+        { key: 'mov_y', type: 'number' },
+        { key: 'mov_width', type: 'number' },
+        { key: 'mov_height', type: 'number' }
+      ]
+    },
+    {
+      category: 'others',
+      children: [
+        { key: 'style', type: 'number' },
+        { key: 'reserved', type: 'number' },
+        { key: 'tooltip', type: 'text' },
+        { key: 'sndOpen', type: 'text', caption: 'sound open' },
+        { key: 'sndClose', type: 'text', caption: 'sound close' }
+      ]
+    }
+  ];
+
+  if (uif.type == 'image') {
+    cat.push({
+      category: uif.type,
+      children: [
+        { key: 'texture', type: 'text' },
+        { key: 'crop.left', type: 'number' },
+        { key: 'crop.top', type: 'number' },
+        { key: 'crop.right', type: 'number' },
+        { key: 'crop.bottom', type: 'number' },
+        { key: 'animFrame', type: 'number' }
+      ]
+    })
+  } else if (uif.type == 'button') {
+    cat.push({
+      category: uif.type,
+      children: [
+        { key: 'click_x', type: 'number' },
+        { key: 'click_y', type: 'number' },
+        { key: 'click_width', type: 'number' },
+        { key: 'click_height', type: 'number' },
+        { key: 'sndOn', type: 'text', caption: 'sound hover' },
+        { key: 'sndClick', type: 'text', caption: 'sound click' }
+      ]
+    })
+  } else if (uif.type == 'string') {
+    cat.push({
+      category: uif.type,
+      children: [
+        { key: 'text', type: 'text' },
+        { key: 'font', type: 'text' },
+        { key: 'fontSize', type: 'number' },
+        { key: 'fontFlags', type: 'number' },
+        { key: 'color', type: 'color' }
+      ]
+    })
+  } else if (uif.type == 'area') {
+    cat.push({
+      category: uif.type,
+      children: [
+        { key: 'areaType', type: 'number' },
+      ]
+    })
+  }
+
+  for (let p of cat) {
+    let lrows = [];
+
+    for (let pick of p.children) {
+      if (pick.type == 'number') {
+        lrows.push(`<div class="row" style="margin: 0">
+      <div class="cell-5">${pick.caption || pick.key}</div>
+      <div class="cell-7">
+        <input type="number" class="mt-1" value="${access(uif, pick.key) || '0'}" key="${pick.key}">
+      </div>
+    </div>`);
+      } else if (pick.type == 'text') {
+        lrows.push(`<div class="row" style="margin: 0">
+      <div class="cell-5">${pick.caption || pick.key}</div>
+      <div class="cell-7">
+        <input type="text" class="mt-1" value="${access(uif, pick.key) || ''}" ${pick.readonly ? ' readonly' : ''} key="${pick.key}">
+      </div>
+    </div>`);
+      } else if (pick.type == 'color') {
+        let color = access(uif, pick.key);
+        /* eslint-disable no-undef */
+        lrows.push(`<div class="row" style="margin: 0">
+      <div class="cell-5">${pick.caption || pick.key}</div>
+      <div class="cell-7">
+      <input type="color" class="mt-1" value="${Metro.colors.rgb2hex({ r: color[0], g: color[1], b: color[2] })}" key="${pick.key}">
+      </div>
+      </div>`);
+        /* eslint-enable no-undef */
+      }
+    }
+
+    rows.push(`<div class="frame active">
+      <div class="heading">${p.category}</div>
+      <div class="content">
+        <div class="p-2">
+          <div class="grid">
+            ${lrows.join('')}
+          </div>
+        </div>
+      </div>
+    </div>`)
+  }
+
+  $('.controls').html(`<div data-one-frame="false" data-show-active="false" data-duration="0">${rows.join('')}</div>`)
+  $('.controls').find('input').on('change', function (e) {
+    let key = this.getAttribute('key');
+    accessAndSet(picked.uif, key, this.value);
+    UpdateAll(data);
+  });
+
+  $('.controls').find('>div').accordion()
+  $('.controls').find('>div').data('accordion')._openAll()
 }
 
 function reverseChild(obj) {
@@ -273,11 +285,21 @@ function reverseChild(obj) {
   }
 }
 
+function count(obj) {
+  let n = 1;
+  if (obj.children) {
+    for (let child of obj.children) {
+      n += count(child);
+    }
+  }
+  return n;
+}
+
 function BuildTree(obj, father) {
   let div = obj.div;
   let name = obj.id || '';
   if (father && father.type == 'button') {
-    let index = father.children.findIndex(x => x == obj);
+    let index = father.children.filter(x => x.type == 'image').findIndex(x => x == obj);
     if (index == 0) {
       name = 'disable';
     } else if (index == 1) {
@@ -344,7 +366,15 @@ function BuildTree(obj, father) {
     }
   }
 
-  $('.tree').data('treeview').toggleNode(obj.tree);
+  if (obj.div) {
+    obj.div.onclick = function (e) {
+      e.stopPropagation();
+      if (obj.tree) {
+        obj.tree.find('>span.caption').click()
+      }
+    }
+  }
+  // $('.tree').data('treeview').toggleNode(obj.tree);
 }
 
 function getJSON(obj) {
@@ -415,12 +445,13 @@ async function UpdateView(obj) {
   }
 
   if (obj.type == 'button') {
-    await fillWithImageTexture(div, obj.children[0]);
+    let images = obj.children.filter(x => x.type == 'image');
+    await fillWithImageTexture(div, images[0]);
 
-    div.onmouseenter = () => fillWithImageTexture(div, obj.children[2])
-    div.onmouseleave = () => fillWithImageTexture(div, obj.children[0])
-    div.onmousedown = () => fillWithImageTexture(div, obj.children[1])
-    div.onmouseup = () => fillWithImageTexture(div, obj.children[2])
+    div.onmouseenter = () => fillWithImageTexture(div, images[2])
+    div.onmouseleave = () => fillWithImageTexture(div, images[0])
+    div.onmousedown = () => fillWithImageTexture(div, images[1])
+    div.onmouseup = (e) => fillWithImageTexture(div, images[2 + +e.shiftKey])
 
     return false;
   }
@@ -445,13 +476,19 @@ async function BuildView(obj) {
   let div = document.createElement('div');
   div.uif = obj;
   obj.div = div;
+  window.loaded++;
+  loading(window.loaded / window.total * 90);
 
-  if (!await UpdateView(obj)) {
-    return div;
-  }
+  await UpdateView(obj);
 
   if (obj.children) {
-    for (let child of obj.children) {
+    let children = obj.children;
+
+    if (obj.type == 'button') {
+      children = children.filter(x => x != 'image');
+    }
+    
+    for (let child of children) {
       child.father = obj;
       let childDom = await BuildView(child);
       if (childDom) {
@@ -505,46 +542,86 @@ function accessAndSet(obj, key, value) {
 
 async function fillWithImageTexture(div, image) {
   let imgData = await getImage(image.texture);
+  div.style.opacity = 1;
+
   if (imgData.noimage) {
     div.style.backgroundImage = 'url(noimage.png)';
     div.style.backgroundSize = undefined;
     div.style.backgroundPositionX = undefined;
     div.style.backgroundPositionY = undefined;
+    if (imgData.blank) {
+      div.style.opacity = 0.2;
+      console.log('image blank. ', image);
+    } else {
+      console.log('image did\'t found. ', image);
+    }
   } else {
-    let width = (image.crop.right - image.crop.left) * imgData.width;
-    let height = (image.crop.bottom - image.crop.top) * imgData.height;
+    let width = (image.crop.right - image.crop.left) * imgData.image.width;
+    let height = (image.crop.bottom - image.crop.top) * imgData.image.height;
     let rw = image.width / width;
     let rh = image.height / height;
 
-    div.style.backgroundImage = 'url(/resource/' + image.texture.replace(/\\/g, '/').replace('.dxt', '.png') + ')';
-    div.style.backgroundSize = (imgData.width * rw) + 'px ' + (imgData.height * rh) + 'px';
-    div.style.backgroundPositionX = '-' + (image.crop.left * imgData.width * rw) + 'px';
-    div.style.backgroundPositionY = '-' + (image.crop.top * imgData.height * rh) + 'px';
+    div.style.backgroundImage = 'url(http://uif.knightby.com/resource/' + image.texture.replace(/\\/g, '/').replace('.dxt', '.png') + ')';
+    div.style.backgroundSize = (imgData.image.width * rw) + 'px ' + (imgData.image.height * rh) + 'px';
+    div.style.backgroundPositionX = '-' + (image.crop.left * imgData.image.width * rw) + 'px';
+    div.style.backgroundPositionY = '-' + (image.crop.top * imgData.image.height * rh) + 'px';
+    div.style.imageRendering = 'pixalated';
   }
 }
 
 let _imageCache = {};
 function getImage(img) {
+  if (!img) {
+    return new Promise(async resolve => {
+      let noimage = await getImage('/noimage.png');
+      resolve({ noimage: true, blank: true, image: noimage });
+    });
+  }
   img = img.split('.');
   img.pop();
   img = img.join('.') + '.png';
 
   if (_imageCache[img]) {
-    return _imageCache[img];
+    return { image: _imageCache[img] };
   }
 
   return new Promise(resolve => {
     let imgDom = document.createElement('img');
-    imgDom.src = img[0] == '/' ? img : '/resource/' + img;
+    imgDom.src = img[0] == '/' ? img : 'http://uif.knightby.com/resource/' + img;
     imgDom.onload = function () {
       _imageCache[img] = imgDom;
-      resolve(imgDom);
+      resolve({ image: imgDom });
     };
 
     imgDom.onerror = async function () {
       let noimage = await getImage('/noimage.png');
-      noimage.noimage = true;
-      resolve(noimage);
+      resolve({ noimage: true, blank: false, image: noimage });
     }
   });
 }
+
+let $wrapper = $('._wrapper');
+let $loading = $('._loading');
+let $loadingText = $loading.find('._text');
+let $loadingProgress = $loading.find('._progress');
+
+function loading(percent) {
+  if (percent < 100) {
+    $loadingProgress.css({ width: percent + '%' });
+    $loadingText.text((parseInt(percent * 10) / 10) + '%');
+
+    $wrapper.css({ display: 'block' });
+    $loading.css({ display: 'block' });
+  } else {
+    $wrapper.css({ display: 'none' });
+    $loading.css({ display: 'none' });
+  }
+}
+
+var f = 0;
+setTimeout(function n() {
+  loading(f);
+  if (f > 100) return;
+  f += (Math.random() * 4 >> 0) + 1;
+  setTimeout(n, 33);
+}, 33);

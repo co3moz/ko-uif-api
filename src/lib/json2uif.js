@@ -19,7 +19,7 @@ function base(data, depth, root) {
   let children = [];
 
   for (let i = 0; i < childCount; i++) {
-    children.unshift(base(data.children[i], depth + 1, false));
+    children.push(base(data.children[i], depth + 1, false));
   }
 
   let id = buildString(data.id || '');
