@@ -1,5 +1,5 @@
 #view>* {
-  border: 1px solid green;
+  box-shadow: 0 0 0 1px rgba(0, 255, 170, 0.8);
 }
 
 .half {
