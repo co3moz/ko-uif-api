@@ -8,11 +8,18 @@ const json2uif = require('./lib/json2uif');
 
 
 const app = express();
+app.set('x-powered-by', false);
 app.set('etag', false);
-app.use(express.static(path.resolve(__dirname, './public')));
+
+
+app.use(express.static(path.resolve(__dirname, './public'), {
+  etag: true,
+  maxAge: '1h'
+}));
+
 app.use('/resource', express.static(path.resolve(__dirname, '../resource'), {
   etag: true,
-  maxAge: '2h'
+  maxAge: '1h'
 }));
 
 const uifUpload = multer({

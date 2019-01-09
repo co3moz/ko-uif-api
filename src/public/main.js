@@ -273,7 +273,7 @@ function treeClick(item) {
   });
 
   $('.controls').find('>div').accordion()
-  $('.controls').find('>div').data('accordion')._openAll()
+  $('.controls').find('>div').data('accordion')._openAll();
 }
 
 function reverseChild(obj) {
@@ -370,11 +370,25 @@ function BuildTree(obj, father) {
     obj.div.onclick = function (e) {
       e.stopPropagation();
       if (obj.tree) {
-        obj.tree.find('>span.caption').click()
+        let items = obj.tree.parents('li');
+
+        $('.tree').find('.expanded').each((i, o) => {
+          if (!items.find(n => n == o)) {
+            $(o).removeClass('expanded').children('ul').hide();
+          }
+        })
+
+        items.each((i, o) => {
+          $(o).addClass('expanded').children('ul').show();
+        })
+
+        obj.tree.find('>span.caption').click();
+
+        $('.half').scrollTop(0).scrollTop(obj.tree.offset().top - $('.half').height() / 2);
       }
     }
   }
-  // $('.tree').data('treeview').toggleNode(obj.tree);
+  $('.tree').data('treeview').toggleNode(obj.tree);
 }
 
 function getJSON(obj) {
@@ -566,9 +580,6 @@ async function fillWithImageTexture(div, image) {
     div.style.backgroundPositionY = undefined;
     if (imgData.blank) {
       div.style.opacity = 0.2;
-      console.log('image blank. ', image);
-    } else {
-      console.log('image did\'t found. ', image);
     }
   } else {
     let width = (image.crop.right - image.crop.left) * imgData.image.width;
@@ -576,11 +587,11 @@ async function fillWithImageTexture(div, image) {
     let rw = image.width / width;
     let rh = image.height / height;
 
-    div.style.backgroundImage = 'url(http://uif.knightby.com/resource/' + image.texture.replace(/\\/g, '/').replace('.dxt', '.png') + ')';
+    div.style.backgroundImage = 'url(/resource/' + image.texture.replace(/\\/g, '/').replace('.dxt', '.png') + ')';
     div.style.backgroundSize = (imgData.image.width * rw) + 'px ' + (imgData.image.height * rh) + 'px';
     div.style.backgroundPositionX = '-' + (image.crop.left * imgData.image.width * rw) + 'px';
     div.style.backgroundPositionY = '-' + (image.crop.top * imgData.image.height * rh) + 'px';
-    div.style.imageRendering = 'pixalated';
+    div.style.imageRendering = 'pixelated';
   }
 }
 
@@ -597,19 +608,20 @@ function getImage(img) {
   img = img.join('.') + '.png';
 
   if (_imageCache[img]) {
-    return { image: _imageCache[img] };
+    return _imageCache[img];
   }
 
   return new Promise(resolve => {
     let imgDom = document.createElement('img');
-    imgDom.src = img[0] == '/' ? img : 'http://uif.knightby.com/resource/' + img;
+    imgDom.src = img[0] == '/' ? img : '/resource/' + img;
     imgDom.onload = function () {
-      _imageCache[img] = imgDom;
+      _imageCache[img] = { image: imgDom };
       resolve({ image: imgDom });
     };
 
     imgDom.onerror = async function () {
       let noimage = await getImage('/noimage.png');
+      _imageCache[img] = { noimage: true, blank: false, image: noimage.image };
       resolve({ noimage: true, blank: false, image: noimage });
     }
   });
@@ -633,10 +645,4 @@ function loading(percent) {
   }
 }
 
-var f = 0;
-setTimeout(function n() {
-  loading(f);
-  if (f > 100) return;
-  f += (Math.random() * 4 >> 0) + 1;
-  setTimeout(n, 33);
-}, 33);
+loading(100);

@@ -12,22 +12,20 @@
   overflow-y: auto;
 }
 
-
 [uif].hover {
-  box-shadow: 0 0 0 1px inset blue;
+  box-shadow: 0 0 0 1px inset rgba(0, 255, 170, 0.8), 0 0 0 1px rgba(0, 255, 170, 0.8); 
 }
 
-
 [uif].picked {
-  box-shadow: 0 0 0 1px inset yellow;
+  box-shadow: 0 0 0 1px inset rgba(255, 255, 0, 0.8), 0 0 0 1px rgba(255, 255, 0, 0.8);
 }
 
 [uif]:hover {
-  box-shadow: 0 0 0 2px inset red;
+  box-shadow: 0 0 0 1px inset rgba(255, 0, 0, 0.8), 0 0 0 1px rgba(255, 0, 0, 0.8);
 }
 
 [uif].picked:hover {
-  box-shadow: 0 0 0 2px inset orange;
+  box-shadow: 0 0 0 1px inset rgba(60, 255, 0, 0.8), 0 0 0 1px rgba(60, 255, 0, 0.8);
 }
 
 
