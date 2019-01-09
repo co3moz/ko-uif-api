@@ -299,7 +299,7 @@ function BuildTree(obj, father) {
   let div = obj.div;
   let name = obj.id || '';
   if (father && father.type == 'button') {
-    let index = father.children.filter(x => x.type == 'image').findIndex(x => x == obj);
+    let index = obj.reserved;
     if (index == 0) {
       name = 'disable';
     } else if (index == 1) {
@@ -460,12 +460,17 @@ async function UpdateView(obj) {
 
   if (obj.type == 'button') {
     let images = obj.children.filter(x => x.type == 'image');
+    let normal = images.find(x => x.reserved == 0);
+    let down = images.find(x => x.reserved == 1);
+    let up = images.find(x => x.reserved == 2);
+    let disable = images.find(x => x.reserved == 3);
+
     await fillWithImageTexture(div, images[0]);
 
-    div.onmouseenter = () => fillWithImageTexture(div, images[2])
-    div.onmouseleave = () => fillWithImageTexture(div, images[0])
-    div.onmousedown = () => fillWithImageTexture(div, images[1])
-    div.onmouseup = (e) => fillWithImageTexture(div, images[2 + +e.shiftKey])
+    div.onmouseenter = () => fillWithImageTexture(div, up)
+    div.onmouseleave = () => fillWithImageTexture(div, normal)
+    div.onmousedown = () => fillWithImageTexture(div, down)
+    div.onmouseup = (e) => fillWithImageTexture(div, e.shiftKey ? disable : up)
 
     return false;
   }
