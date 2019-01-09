@@ -575,6 +575,14 @@ function accessAndSet(obj, key, value) {
 }
 
 async function fillWithImageTexture(div, image) {
+  if (!image) {
+    div.style.backgroundImage = 'url(noimage.png)';
+    div.style.backgroundSize = undefined;
+    div.style.backgroundPositionX = undefined;
+    div.style.backgroundPositionY = undefined;
+    return;
+  }
+
   let imgData = await getImage(image.texture);
   div.style.opacity = 1;
 
