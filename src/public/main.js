@@ -300,13 +300,13 @@ function BuildTree(obj, father) {
   let name = obj.id || '';
   if (father && father.type == 'button') {
     let index = obj.reserved;
-    if (index == 0) {
+    if (index == 3) {
       name = 'disable';
-    } else if (index == 1) {
-      name = 'hover';
     } else if (index == 2) {
+      name = 'hover';
+    } else if (index == 1) {
       name = 'down';
-    } else if (index == 3) {
+    } else if (index == 0) {
       name = 'normal';
     }
   }
@@ -465,7 +465,7 @@ async function UpdateView(obj) {
     let up = images.find(x => x.reserved == 2);
     let disable = images.find(x => x.reserved == 3);
 
-    await fillWithImageTexture(div, images[0]);
+    await fillWithImageTexture(div, normal);
 
     div.onmouseenter = () => fillWithImageTexture(div, up)
     div.onmouseleave = () => fillWithImageTexture(div, normal)
