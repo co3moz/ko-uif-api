@@ -299,15 +299,17 @@ function BuildTree(obj, father) {
   let div = obj.div;
   let name = obj.id || '';
   if (father && father.type == 'button') {
-    let index = obj.reserved || 0;
-    if (index == 3) {
-      name = 'disable';
-    } else if (index == 2) {
-      name = 'hover';
-    } else if (index == 1) {
-      name = 'down';
-    } else if (index == 0) {
-      name = 'normal';
+    if (obj.type == 'image') {
+      let index = obj.reserved || 0;
+      if (index == 3) {
+        name = 'disable';
+      } else if (index == 2) {
+        name = 'hover';
+      } else if (index == 1) {
+        name = 'down';
+      } else if (index == 0) {
+        name = 'normal';
+      }
     }
   }
 
