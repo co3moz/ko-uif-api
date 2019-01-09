@@ -479,15 +479,15 @@ async function BuildView(obj) {
   window.loaded++;
   loading(window.loaded / window.total * 90);
 
-  await UpdateView(obj);
+  if(!await UpdateView(obj)) return div;
 
   if (obj.children) {
     let children = obj.children;
 
     if (obj.type == 'button') {
-      children = children.filter(x => x != 'image');
+      children = children.filter(x => x.type != 'image');
     }
-    
+
     for (let child of children) {
       child.father = obj;
       let childDom = await BuildView(child);
