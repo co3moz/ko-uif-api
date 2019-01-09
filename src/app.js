@@ -10,7 +10,10 @@ const json2uif = require('./lib/json2uif');
 const app = express();
 app.set('etag', false);
 app.use(express.static(path.resolve(__dirname, './public')));
-app.use('/resource', express.static(path.resolve(__dirname, '../resource')));
+app.use('/resource', express.static(path.resolve(__dirname, '../resource'), {
+  etag: true,
+  maxAge: '2h'
+}));
 
 const uifUpload = multer({
   storage: multer.memoryStorage(),

@@ -110,7 +110,7 @@ async function render(data, file) {
 
   reverseChild(data);
 
-  loading(95);
+  loading(99);
 
   $('.tree').data('treeview').options.onNodeClick = treeClick;
 
@@ -471,15 +471,30 @@ async function UpdateAll(obj) {
   }
 }
 
+function IncChild(obj) {
+  if (obj.children) {
+    let children = obj.children;
+
+    for (let child of children) {
+      window.loaded++;
+      IncChild(child);
+    }
+  }
+}
 
 async function BuildView(obj) {
   let div = document.createElement('div');
   div.uif = obj;
   obj.div = div;
   window.loaded++;
-  loading(window.loaded / window.total * 90);
+  loading(window.loaded / window.total * 98);
+  await new Promise(resolve => setTimeout(resolve, 5));
 
-  if(!await UpdateView(obj)) return div;
+  if (!await UpdateView(obj)) {
+    IncChild(obj);
+
+    return div;
+  }
 
   if (obj.children) {
     let children = obj.children;
