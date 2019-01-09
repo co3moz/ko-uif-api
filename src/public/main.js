@@ -299,7 +299,7 @@ function BuildTree(obj, father) {
   let div = obj.div;
   let name = obj.id || '';
   if (father && father.type == 'button') {
-    let index = obj.reserved;
+    let index = obj.reserved || 0;
     if (index == 3) {
       name = 'disable';
     } else if (index == 2) {
@@ -460,7 +460,7 @@ async function UpdateView(obj) {
 
   if (obj.type == 'button') {
     let images = obj.children.filter(x => x.type == 'image');
-    let normal = images.find(x => x.reserved == 0);
+    let normal = images.find(x => x.reserved == 0 || x.reserved == undefined);
     let down = images.find(x => x.reserved == 1);
     let up = images.find(x => x.reserved == 2);
     let disable = images.find(x => x.reserved == 3);
