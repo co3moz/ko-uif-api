@@ -13,8 +13,7 @@ app.set('etag', false);
 
 
 app.use(express.static(path.resolve(__dirname, './public'), {
-  etag: true,
-  maxAge: '1h'
+  etag: false
 }));
 
 app.use('/resource', express.static(path.resolve(__dirname, '../resource'), {
