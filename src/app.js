@@ -11,11 +11,7 @@ const app = express();
 app.set('x-powered-by', false);
 app.set('etag', false);
 
-
-app.use(express.static(path.resolve(__dirname, './public'), {
-  etag: false
-}));
-
+app.use(express.static(path.resolve(__dirname, './public'), { etag: false }));
 app.use('/resource', express.static(path.resolve(__dirname, '../resource'), {
   etag: true,
   maxAge: '1h'
