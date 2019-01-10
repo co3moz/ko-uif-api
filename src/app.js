@@ -47,7 +47,10 @@ app.post('/uif2json', (req, res) => {
         throw new Error('no file');
       }
 
+      let begin = process.hrtime();
       let json = uif2json(req.file.buffer);
+      let time = process.hrtime(begin).reduce((n, x, i) => i == 0 ? x * 1000 : n + x / 1e6, 0);
+      console.log('uif2json request. took: %sms size: %d', time, req.file.buffer.length);
       res.send(json);
     } catch (err) {
       res.status(400);
@@ -64,7 +67,10 @@ app.post('/json2uif', jsonUpload, (req, res) => {
       throw new Error('no json');
     }
 
+    let begin = process.hrtime();
     let data = json2uif(req.body);
+    let time = process.hrtime(begin).reduce((n, x, i) => i == 0 ? x * 1000 : n + x / 1e6, 0);
+    console.log('json2uif request. took: %sms size: %s', time, data.length);
     res.send(data);
   } catch (err) {
     res.status(400);

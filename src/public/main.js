@@ -457,6 +457,7 @@ async function UpdateView(obj) {
     textDiv.innerText = obj.text || '';
     textDiv.style.display = 'table-cell';
     textDiv.style.verticalAlign = vertical_align;
+    textDiv.style.wordBreak = 'break-all';
     div.appendChild(textDiv);
   }
 
@@ -602,7 +603,7 @@ async function fillWithImageTexture(div, image) {
     let rw = image.width / width;
     let rh = image.height / height;
 
-    div.style.backgroundImage = 'url("/resource/' + image.texture.replace(/\\/g, '/').replace('.dxt', '.png') + '")';
+    div.style.backgroundImage = 'url("https://uif.knightby.com/resource/' + image.texture.replace(/\\/g, '/').replace('.dxt', '.png') + '")';
     div.style.backgroundSize = (imgData.image.width * rw) + 'px ' + (imgData.image.height * rh) + 'px';
     div.style.backgroundPositionX = '-' + (image.crop.left * imgData.image.width * rw) + 'px';
     div.style.backgroundPositionY = '-' + (image.crop.top * imgData.image.height * rh) + 'px';
@@ -628,7 +629,7 @@ function getImage(img) {
 
   return new Promise(resolve => {
     let imgDom = document.createElement('img');
-    imgDom.src = img[0] == '/' ? img : '/resource/' + img;
+    imgDom.src = img[0] == '/' ? img : 'https://uif.knightby.com/resource/' + img;
     imgDom.onload = function () {
       _imageCache[img] = { image: imgDom };
       resolve({ image: imgDom });
@@ -661,3 +662,40 @@ function loading(percent) {
 }
 
 loading(100);
+
+
+setTimeout(function () {
+  if (location.hostname == 'localhost') {
+    let load = 'co_clan_msg.uif';
+
+    if (load) {
+      fetch('/resource/' + load).then(response => {
+        if (response.ok) {
+          return response.blob();
+        }
+
+        throw new Error('test file couldn\'t fetch');
+      }).then(x => {
+        let formData = new FormData();
+        formData.set('uif', x);
+
+        return fetch('/uif2json', {
+          method: 'POST',
+          body: formData
+        });
+      }).then(async response => {
+        let data = await response.json();
+
+        if (response.ok) {
+          return data;
+        }
+
+        throw data;
+      }).then(data => {
+        render(data, { name: load });
+      }).catch(err => {
+        Metro.toast.create("Error: " + (err ? err.err || err.message : 'Unknown'), null, 5000, "alert");
+      });
+    }
+  }
+}, 50);
