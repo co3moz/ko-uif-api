@@ -602,7 +602,7 @@ async function fillWithImageTexture(div, image) {
     let rw = image.width / width;
     let rh = image.height / height;
 
-    div.style.backgroundImage = 'url(/resource/' + image.texture.replace(/\\/g, '/').replace('.dxt', '.png') + ')';
+    div.style.backgroundImage = 'url("/resource/' + image.texture.replace(/\\/g, '/').replace('.dxt', '.png') + '")';
     div.style.backgroundSize = (imgData.image.width * rw) + 'px ' + (imgData.image.height * rh) + 'px';
     div.style.backgroundPositionX = '-' + (image.crop.left * imgData.image.width * rw) + 'px';
     div.style.backgroundPositionY = '-' + (image.crop.top * imgData.image.height * rh) + 'px';
