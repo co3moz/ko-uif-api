@@ -14,7 +14,7 @@ $('li.json').on('click', function () {
 
 $('li.resources').on('click', function () {
   // $('.window').css({ display: 'block' })
-  
+
   Metro.toast.create("Resources still in development", null, 5000, "warning");
 })
 
@@ -22,10 +22,26 @@ $('li.resources').on('click', function () {
 $('li.new').on('click', function () {
   let _new = {
     type: "base",
-    height: 512,
-    width: 512,
+    height: 559,
+    width: 439,
+    mov_x: 32,
+    mov_y: 12,
+    mov_width: 351,
+    mov_height: 33,
     tail: [],
-    tooltip: 'uif editor'
+    children: [
+      { "type": "string", "id": "str_name", "x": 135, "y": 27, "width": 169, "height": 20, "style": 344981504, "tail": [1, 0, 0], "font": "1<82", "fontSize": 10, "fontFlags": 1, "color": [237, 234, 114, 255], "text": "Custom UIF" },
+      {
+        "type": "button", "id": "btn_close", "x": 384, "y": 12, "width": 34, "height": 33, "style": 65536, "tail": [1, 0, 0], "click_x": 384, "click_y": 12, "click_width": 34, "click_height": 33, "children": [
+          { "type": "image", "x": 384, "y": 12, "width": 34, "height": 33, "reserved": 3, "tail": [1, 0, 0], "texture": "ui\\re_page_state.dxt", "crop": { "left": 0.728515625, "top": 0.791015625, "right": 0.794921875, "bottom": 0.85546875 }, "animFrame": 30 },
+          { "type": "image", "x": 384, "y": 12, "width": 34, "height": 33, "reserved": 2, "tail": [1, 0, 0], "texture": "ui\\re_page_state.dxt", "crop": { "left": 0.591796875, "top": 0.791015625, "right": 0.658203125, "bottom": 0.85546875 }, "animFrame": 30 },
+          { "type": "image", "x": 384, "y": 12, "width": 34, "height": 33, "reserved": 1, "tail": [1, 0, 0], "texture": "ui\\re_page_state.dxt", "crop": { "left": 0.66015625, "top": 0.791015625, "right": 0.7265625, "bottom": 0.85546875 }, "animFrame": 30 },
+          { "type": "image", "x": 384, "y": 12, "width": 34, "height": 33, "tail": [1, 0, 0], "texture": "ui\\re_page_state.dxt", "crop": { "left": 0.5234375, "top": 0.791015625, "right": 0.58984375, "bottom": 0.85546875 }, "animFrame": 30 }
+        ]
+      },
+      { "type": "image", "y": 480, "width": 426, "height": 77, "tail": [1, 0, 0], "texture": "ui\\re_auto_02.dxt", "crop": { "left": 0.00390625, "top": 0.3203125, "right": 0.8359375, "bottom": 0.470703125 }, "animFrame": 30 },
+      { "type": "image", "x": 3, "width": 421, "height": 481, "tail": [1, 0, 0], "texture": "ui\\re_auto_01.dxt", "crop": { "left": 0.0078125, "top": 0.009765625, "right": 0.830078125, "bottom": 0.94921875 }, "animFrame": 30 }
+    ]
   };
 
 
