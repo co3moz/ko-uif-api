@@ -19,14 +19,14 @@ function base(data, depth, root) {
   let children = [];
 
   for (let i = 0; i < childCount; i++) {
-    children.push(base(data.children[i], depth + 1, false));
+    children.unshift(base(data.children[i], depth + 1, false));
   }
 
   let id = buildString(data.id || '');
   let position = buildRect({ left: (data.x || 0), top: (data.y || 0), right: (data.width || 0) + (data.x || 0), bottom: (data.height || 0) + (data.y || 0) });
   let movement = buildRect({ left: (data.mov_x || 0), top: (data.mov_y || 0), right: (data.mov_width || 0) + (data.mov_x || 0), bottom: (data.mov_height || 0) + (data.mov_y || 0) });
   let style = buildInteger(data.style | 0);
-  let reserved = buildInteger(data.style | 0);
+  let reserved = buildInteger(data.reserved | 0);
   let tooltip = buildString(data.tooltip || '');
   let sndOpen = buildString(data.sndOpen || '');
   let sndClose = buildString(data.sndClose || '');
@@ -61,7 +61,7 @@ function base(data, depth, root) {
         ]);
       } else {
         extra = Buffer.concat([
-          buildString(data.font || ''),
+          buildString(''),
           buildBuffer([data.color[2], data.color[1], data.color[0], data.color[3]]),
           buildString(obj.text || ''),
           buildInteger(data.unk || 0)
@@ -81,7 +81,7 @@ function base(data, depth, root) {
           buildString(data.fontItalic || ''),
         ]);
       } else {
-        extra = buildString(data.font || '')
+        extra = buildString('')
       }
       break;
     case types.EDIT:

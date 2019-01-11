@@ -61,6 +61,7 @@
   -ms-flex: 0 0 420px;
   flex: 0 0 420px;
   max-width: 420px;
+  border-right: 2px solid #585b5d;
 }
 
 ._loading {
@@ -92,6 +93,19 @@
   height: 100%;
   background-color: cornflowerblue;
   z-index: 2002;
+}
+
+._loading ._state {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  line-height: 30px;
+  bottom: 40px;
+  color: white;
+  text-align: center;
+  z-index: 2003;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 20px;
 }
 
 ._wrapper {

@@ -8,9 +8,11 @@
 
   <link rel="stylesheet" href="//cdn.metroui.org.ua/v4/css/metro-all.min.css">
   <link rel="stylesheet" href="//cdn.metroui.org.ua/v4/css/schemes/darcula.min.css">
+  <link rel="stylesheet" href="//bgrins.github.io/spectrum/spectrum.css">
   <link rel="stylesheet" href="main.css">
   <script src="//code.jquery.com/jquery-3.3.1.min.js"></script>
   <script src="//cdn.metroui.org.ua/v4/js/metro.min.js"></script>
+  <script src="//bgrins.github.io/spectrum/spectrum.js"></script>
 </head>
 <body>
   <div data-role="appbar" data-expand-point="md">
@@ -20,6 +22,9 @@
       </span>
     </a>
     <ul class="app-bar-menu">
+      <li class="new">
+        <a href="#"><span class="icon mif-plus"></span> <span>New</span></a>
+      </li>
       <li class="open">
         <a href="#"><span class="icon mif-file-upload"></span> <span>Open</span></a>
       </li>
@@ -27,7 +32,7 @@
         <a href="#" class="active"><span class="icon mif-file-image"></span> <span class="file_p"></span></a>
       </li>
       <li class="json" style="display: none">
-        <a href="#"><span class="icon mif-barcode"></span> <span>JSON</span></a>
+        <a href="#"><span class="icon mif-barcode"></span> <span>Raw</span></a>
       </li>
       <li class="save" style="display: none">
         <a href="#"><span class="icon mif-floppy-disk"></span> <span>Save</span></a>
@@ -35,9 +40,13 @@
       <li class="close" style="display: none">
         <a href="#"><span class="icon mif-cross"></span> <span>Close</span></a>
       </li>
+      <li class="resources">
+        <a href="#"><span class="icon mif-books"></span> <span>Resources</span></a>
+      </li>
     </ul>
-
   </div>
+
+
 
   <div class="dialog jsonDialog" data-role="dialog">
     <div class="dialog-title">Json output</div>
@@ -81,20 +90,26 @@
           </div>
         </div>
       </div>
-      <div class="cell">
+      <div class="cell" style="min-width: 10px">
         <div class="pt-15">
           <div id="view">
           </div>
         </div>
       </div>
-
     </div>
   </div>
+
+  <!-- <div class="p-2" data-role="window" data-draggable="true" data-width="500" data-height="300" data-resizable="false"
+    data-icon="<span class='mif-books'></span>" data-title="Resources" data-place="center" data-btn-min="false"  data-btn-max="false" data-close-action="2">
+    <button class="button primary">New Resource</button>
+
+  </div> -->
 
   <div class="_wrapper"></div>
   <div class="_loading">
     <div class="_text">0%</div>
     <div class="_progress"></div>
+    <div class="_state">loading..</div>
   </div>
 
   <script src="main.js"></script>

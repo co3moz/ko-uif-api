@@ -1,6 +1,7 @@
 /* eslint-env browser,jquery */
 let view = document.querySelector('#view');
 let picked;
+let changed = false;
 
 $('li.open').on('click', function () {
   $('input[type="file"]').click();
@@ -11,14 +12,56 @@ $('li.json').on('click', function () {
   Metro.dialog.open('.jsonDialog');
 })
 
+$('li.resources').on('click', function () {
+  // $('.window').css({ display: 'block' })
+  
+  Metro.toast.create("Resources still in development", null, 5000, "warning");
+})
+
+
+$('li.new').on('click', function () {
+  let _new = {
+    type: "base",
+    height: 512,
+    width: 512,
+    tail: [],
+    tooltip: 'uif editor'
+  };
+
+
+  render(_new, 'custom.' + Date.now() + '.uif');
+
+  loading(100);
+})
+
 $('li.close').on('click', function () {
-  Metro.dialog.open('.closeDialog')
+  if (changed) {
+    Metro.dialog.open('.closeDialog');
+  } else {
+    window.data = null;
+    window.selectedFile = null;
+
+    $('li.new').css({ display: 'block' });
+    $('li.open').css({ display: 'block' });
+    $('li.file_p').css({ display: 'none' });
+    $('span.file_p').text('');
+    $('li.save').css({ display: 'none' });
+    $('li.json').css({ display: 'none' });
+    $('li.close').css({ display: 'none' });
+    $('.tree').empty();
+    $('#view').empty();
+    $('.controls').empty();
+
+    // localStorage.removeItem('data');
+    // localStorage.removeItem('selectedItem');
+  }
 })
 
 $('.discard').on('click', function () {
   window.data = null;
   window.selectedFile = null;
 
+  $('li.new').css({ display: 'block' });
   $('li.open').css({ display: 'block' });
   $('li.file_p').css({ display: 'none' });
   $('span.file_p').text('');
@@ -28,6 +71,10 @@ $('.discard').on('click', function () {
   $('.tree').empty();
   $('#view').empty();
   $('.controls').empty();
+  changed = false;
+
+  // localStorage.removeItem('data');
+  // localStorage.removeItem('selectedItem');
 })
 
 $('li.save').on('click', function () {
@@ -44,7 +91,7 @@ $('li.save').on('click', function () {
       throw data;
     }
 
-    download(await response.blob(), selectedFile.name);
+    download(await response.blob(), selectedFile);
 
   }).catch(err => {
     Metro.toast.create("Error: " + (err ? err.err || err.message : 'Unknown'), null, 5000, "alert");
@@ -62,6 +109,8 @@ $('input[type="file"]').on('change', function () {
   let $this = $(this);
 
   if (this.files[0]) {
+    loading(0, 'uploading..');
+
     let file = this.files[0];
     let formData = new FormData();
     formData.set('uif', file);
@@ -70,6 +119,7 @@ $('input[type="file"]').on('change', function () {
       method: 'POST',
       body: formData
     }).then(async response => {
+      loading(5, 'parsing..');
       let data = await response.json();
 
       if (response.ok) {
@@ -78,9 +128,12 @@ $('input[type="file"]').on('change', function () {
 
       throw data;
     }).then(data => {
-      render(data, file);
+      render(data, file.name);
+
+      loading(100);
     }).catch(err => {
       Metro.toast.create("Error: " + (err ? err.err || err.message : 'Unknown'), null, 5000, "alert");
+      loading(100);
     })
   }
 
@@ -90,10 +143,13 @@ $('input[type="file"]').on('change', function () {
 async function render(data, file) {
   window.data = data;
   window.selectedFile = file;
+  // localStorage.setItem('data', JSON.stringify(data));
+  // localStorage.setItem('selectedFile', selectedFile);
 
   $('li.open').css({ display: 'none' });
+  $('li.new').css({ display: 'none' });
   $('li.file_p').css({ display: 'block' });
-  $('span.file_p').text(file.name);
+  $('span.file_p').text(file);
   $('li.save').css({ display: 'block' });
   $('li.json').css({ display: 'block' });
   $('li.close').css({ display: 'block' });
@@ -110,7 +166,7 @@ async function render(data, file) {
 
   reverseChild(data);
 
-  loading(99);
+  loading(95, 'steady..');
 
   $('.tree').data('treeview').options.onNodeClick = treeClick;
 
@@ -267,13 +323,30 @@ function treeClick(item) {
 
   $('.controls').html(`<div data-one-frame="false" data-show-active="false" data-duration="0">${rows.join('')}</div>`)
   $('.controls').find('input').on('change', function (e) {
+    let type = this.getAttribute('type');
     let key = this.getAttribute('key');
-    accessAndSet(picked.uif, key, this.value);
+
+    if (type == 'color') {
+      let data = $(this).spectrum('get').toRgb();
+      accessAndSet(picked.uif, key, [data.r, data.g, data.b, data.a * 255 >> 0]);
+    } else {
+      accessAndSet(picked.uif, key, this.value);
+    }
+
     UpdateAll(data);
+    changed = true;
+    // localStorage.setItem('changed', 'true');
+    // localStorage.setItem('data', JSON.stringify(getJSON(data)));
   });
 
   $('.controls').find('>div').accordion()
   $('.controls').find('>div').data('accordion')._openAll();
+
+
+  $('input[type="color"]').spectrum({
+    preferredFormat: 'rgb',
+    showAlpha: true
+  });
 }
 
 function reverseChild(obj) {
@@ -407,7 +480,7 @@ function getJSON(obj) {
   if (obj.children) {
     item.children = [];
     for (let child of obj.children) {
-      item.children.push(getJSON(child));
+      item.children.unshift(getJSON(child));
     }
   }
 
@@ -416,6 +489,14 @@ function getJSON(obj) {
 
 async function UpdateView(obj) {
   let div = obj.div;
+
+  // div.setAttribute('data-role', 'hint');
+  // div.setAttribute('data-hint-position', 'bottom');
+  // div.setAttribute('data-hint-text', obj.type + (obj.id ? ' (' + obj.id + ')' : ''));
+  div.title = (obj.type + (obj.id ? ' (' + obj.id + ')' : ''));
+  // div.setAttribute('data-cls-hint', 'bg-cyan fg-white drop-shadow');
+
+
   div.style.width = obj.width + 'px';
   div.style.height = obj.height + 'px';
 
@@ -457,7 +538,7 @@ async function UpdateView(obj) {
     textDiv.innerText = obj.text || '';
     textDiv.style.display = 'table-cell';
     textDiv.style.verticalAlign = vertical_align;
-    textDiv.style.wordBreak = 'break-all';
+    textDiv.style.wordBreak = 'break-word';
     div.appendChild(textDiv);
   }
 
@@ -472,18 +553,14 @@ async function UpdateView(obj) {
 
     div.onmouseenter = () => fillWithImageTexture(div, up)
     div.onmouseleave = () => fillWithImageTexture(div, normal)
-    div.onmousedown = () => fillWithImageTexture(div, down)
-    div.onmouseup = (e) => fillWithImageTexture(div, e.shiftKey ? disable : up)
-
-    return false;
+    div.onmousedown = (e) => fillWithImageTexture(div, e.shiftKey ? disable : down)
+    div.onmouseup = () => fillWithImageTexture(div, up)
   }
-
-  return true;
 }
 
 async function UpdateAll(obj) {
-  if (!await UpdateView(obj)) {
-    return;
+  if (obj.div) {
+    await UpdateView(obj);
   }
 
   if (obj.children) {
@@ -509,19 +586,17 @@ async function BuildView(obj) {
   div.uif = obj;
   obj.div = div;
   window.loaded++;
-  loading(window.loaded / window.total * 98);
+  loading(window.loaded / window.total * 89 + 5);
+
   await new Promise(resolve => setTimeout(resolve, 5));
 
-  if (!await UpdateView(obj)) {
-    IncChild(obj);
-
-    return div;
-  }
+  await UpdateView(obj);
 
   if (obj.children) {
     let children = obj.children;
 
     if (obj.type == 'button') {
+      children.filter(x => x.type == 'image').map(x => IncChild(x));
       children = children.filter(x => x.type != 'image');
     }
 
@@ -586,6 +661,7 @@ async function fillWithImageTexture(div, image) {
     return;
   }
 
+  loading(undefined, image.texture);
   let imgData = await getImage(image.texture);
   div.style.opacity = 1;
 
@@ -647,55 +723,40 @@ let $wrapper = $('._wrapper');
 let $loading = $('._loading');
 let $loadingText = $loading.find('._text');
 let $loadingProgress = $loading.find('._progress');
+let $loadingState = $loading.find('._state');
 
-function loading(percent) {
-  if (percent < 100) {
-    $loadingProgress.css({ width: percent + '%' });
-    $loadingText.text((parseInt(percent * 10) / 10) + '%');
+function loading(percent, lastState) {
+  if (lastState != undefined) {
+    $loadingState.text(lastState ? lastState : 'loading..');
+  }
 
-    $wrapper.css({ display: 'block' });
-    $loading.css({ display: 'block' });
-  } else {
-    $wrapper.css({ display: 'none' });
-    $loading.css({ display: 'none' });
+  if (percent != undefined) {
+    if (percent < 100) {
+      $loadingProgress.css({ width: percent + '%' });
+      $loadingText.text((parseInt(percent * 10) / 10) + '%');
+
+      $wrapper.css({ display: 'block' });
+      $loading.css({ display: 'block' });
+    } else {
+      $wrapper.css({ display: 'none' });
+      $loading.css({ display: 'none' });
+    }
   }
 }
 
-loading(100);
 
+
+// setTimeout(function () {
+//   let data = localStorage.getItem('data');
+//   let selectedFile = localStorage.getItem('selectedFile');
+
+//   if (data) {
+//     render(JSON.parse(data), selectedFile);
+//   }
+
+// }, 50);
 
 setTimeout(function () {
-  if (location.hostname == 'localhost') {
-    let load = 'co_clan_msg.uif';
-
-    if (load) {
-      fetch('/resource/' + load).then(response => {
-        if (response.ok) {
-          return response.blob();
-        }
-
-        throw new Error('test file couldn\'t fetch');
-      }).then(x => {
-        let formData = new FormData();
-        formData.set('uif', x);
-
-        return fetch('/uif2json', {
-          method: 'POST',
-          body: formData
-        });
-      }).then(async response => {
-        let data = await response.json();
-
-        if (response.ok) {
-          return data;
-        }
-
-        throw data;
-      }).then(data => {
-        render(data, { name: load });
-      }).catch(err => {
-        Metro.toast.create("Error: " + (err ? err.err || err.message : 'Unknown'), null, 5000, "alert");
-      });
-    }
-  }
+  // $('.window').window();
+  loading(100, '');
 }, 50);
