@@ -118,3 +118,70 @@
   background-color: rgba(0,0,0, 0.5);
 }
 
+.controls .frame:nth-child(1) .heading {
+  background-color: #0c9eff;
+}
+
+.controls .frame:nth-child(2) .heading {
+  background-color: #e30cff;
+}
+
+.controls .frame:nth-child(3) .heading {
+  background-color: #ffaa0c;
+}
+
+.controls .frame:nth-child(4) .heading {
+  background-color: #00b87a;
+}
+
+.sp-replacer {
+  background-color: #2b2b2b;
+  color: #fff;
+  border-color: #585b5d!important;
+  margin: 5px 0;
+}
+
+.sp-container {
+  background-color: #2b2b2b;
+  color: #fff;
+  border-color: #585b5d!important;
+}
+
+.sp-picker-container {
+  border-left: 0;
+}
+
+.sp-choose {
+  font-weight: 400 !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  border: 1px solid transparent !important;
+  padding: 0 .75rem !important;
+  font-size: .875rem !important;
+  line-height: 34px !important;
+  height: 36px !important;
+  cursor: pointer !important;
+  position: relative !important;;
+
+
+  outline-color: #89b0ff !important;
+  background-color: #0050ef !important;
+  color: #fff !important;
+  border-radius: 0 !important;
+  background-image: none!important;
+}
+
+.sp-cancel {
+  font-size: 13px;
+  color: #ffffff !important;
+  margin: 0;
+  padding: 4px;
+  margin-right: 5px;
+  vertical-align: middle;
+  text-decoration: none;
+}

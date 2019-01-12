@@ -2,6 +2,24 @@
 let view = document.querySelector('#view');
 let picked;
 let changed = false;
+let lock = false;
+let resourceObj = {};
+let resourceBlob = {};
+
+let r = localStorage.getItem('resources');
+
+if (r) {
+  try {
+    resourceObj = JSON.parse(r);
+
+    for (let key in resourceObj) {
+      resourceBlob[key] = generateBlobUrl(localStorage.getItem(resourceObj[key]));
+      console.log('resource %s loaded', key);
+    }
+  } catch (e) {
+
+  }
+}
 
 $('li.open').on('click', function () {
   $('input[type="file"]').click();
@@ -13,9 +31,134 @@ $('li.json').on('click', function () {
 })
 
 $('li.resources').on('click', function () {
-  // $('.window').css({ display: 'block' })
+  if (!$('.window').length) {
+    let body = Object.keys(resourceObj).map(key => `<div class="row m-0">
+    <div class="cell-5">
+      ${key}
+    </div>
+    <div class="cell-5">
+      <img src="${resourceBlob[key]}" alt="${key}" style="height: 64px; width: 64px;"/>
+    </div>
 
-  Metro.toast.create("Resources still in development", null, 5000, "warning");
+    <div class="cell-2">
+      <button class="button alert w-100 resource_remove" resource="${key}">Remove</button>
+    </div>
+  </div>`).join('');
+
+    Metro.window.create({
+      draggable: true,
+      width: 700,
+      height: 400,
+      icon: '<span class="mif-books"></span>',
+      title: 'Resources',
+      btnMin: false,
+      btnMax: false,
+      closeAction: Metro.actions.REMOVE,
+      resizable: false,
+      place: 'center',
+      content: `<div class="p-2">
+      <div class="row m-0">
+        <div class="cell-5">
+          <input class="resource_path" type="text" data-role="input" data-clear-button="false" placeholder="ui\\custom_file_location.dxt">
+        </div>
+        <div class="cell-5">
+          <input class="resource_file" type="file" accept="image/*" data-role="file" placeholder="file" data-button-title="<span class='mif-folder'></span>">
+        </div>
+
+        <div class="cell-2">
+          <button class="button primary w-100 resource_add">Add</button>
+        </div>
+      </div>
+      <hr/>
+
+      <div class="resource_list">
+      ${body}
+      </div>
+
+    </div>`
+    });
+
+    $('.window').on('click', '.resource_remove', e => {
+      let $e = $(e.currentTarget);
+      let resource = $e.attr('resource');
+      let key = resourceObj[resource];
+
+      delete resourceObj[resource];
+      delete resourceBlob[resource];
+
+      localStorage.setItem('resources', JSON.stringify(resourceObj));
+      localStorage.removeItem(key);
+
+      $e.parents('.row').remove();
+      if (window.data) {
+        UpdateAll(data);
+      }
+    });
+
+    $('.window').on('click', '.resource_add', async e => {
+      if (lock) return;
+      lock = true;
+
+      $('.resource_add').attr('disabled', true);
+
+      try {
+        let $path = $('.resource_path input');
+        let $file = $('.resource_file input');
+
+        let path = $path.val();
+        if (!path) {
+          throw new Error('Path is required. (eg: ui\\re_some_icon.dxt)');
+        }
+
+        if (!$file.val()) {
+          throw new Error('File is required. (pick some image)');
+        }
+
+        if (resourceObj[path]) {
+          throw new Error('This path is already used in another resource path');
+        }
+
+        let dataUrl = await generateDataUrl($file[0]);
+
+        await checkDimensions(dataUrl);
+
+        let name = Date.now();
+        resourceObj[path] = name;
+        localStorage.setItem('resources', JSON.stringify(resourceObj));
+        localStorage.setItem(name, dataUrl);
+
+        let blobURL = generateBlobUrl(dataUrl)
+
+        resourceBlob[path] = blobURL;
+
+        if (window.data) {
+          await UpdateAll(data);
+        }
+
+        $('.resource_list').append(`<div class="row m-0">
+        <div class="cell-5">
+          ${path}
+        </div>
+        <div class="cell-5">
+          <img src="${blobURL}" alt="${path}" style="width: 64px;"/>
+        </div>
+    
+        <div class="cell-2">
+          <button class="button alert w-100 resource_remove" resource="${path}">Remove</button>
+        </div>
+      </div>`)
+
+        $path.val('');
+        $file.val('');
+        $file.parent().find('span.caption').text('');
+      } catch (e) {
+        Metro.toast.create("Error: " + e.message, null, 1000, "alert");
+      } finally {
+        $('.resource_add').attr('disabled', false);
+        lock = false;
+      }
+    });
+  }
 })
 
 
@@ -129,7 +272,7 @@ $('input[type="file"]').on('change', function () {
 
     let file = this.files[0];
     let formData = new FormData();
-    formData.set('uif', file);
+    formData.append('uif', file);
 
     fetch('/uif2json', {
       method: 'POST',
@@ -300,14 +443,14 @@ function treeClick(item) {
     for (let pick of p.children) {
       if (pick.type == 'number') {
         lrows.push(`<div class="row" style="margin: 0">
-      <div class="cell-5">${pick.caption || pick.key}</div>
+      <div class="cell-5" style="line-height: 40px">${pick.caption || pick.key}</div>
       <div class="cell-7">
         <input type="number" class="mt-1" value="${access(uif, pick.key) || '0'}" key="${pick.key}">
       </div>
     </div>`);
       } else if (pick.type == 'text') {
         lrows.push(`<div class="row" style="margin: 0">
-      <div class="cell-5">${pick.caption || pick.key}</div>
+      <div class="cell-5" style="line-height: 40px">${pick.caption || pick.key}</div>
       <div class="cell-7">
         <input type="text" class="mt-1" value="${access(uif, pick.key) || ''}" ${pick.readonly ? ' readonly' : ''} key="${pick.key}">
       </div>
@@ -316,7 +459,7 @@ function treeClick(item) {
         let color = access(uif, pick.key);
         /* eslint-disable no-undef */
         lrows.push(`<div class="row" style="margin: 0">
-      <div class="cell-5">${pick.caption || pick.key}</div>
+      <div class="cell-5" style="line-height: 40px">${pick.caption || pick.key}</div>
       <div class="cell-7">
       <input type="color" class="mt-1" value="${Metro.colors.rgb2hex({ r: color[0], g: color[1], b: color[2] })}" key="${pick.key}">
       </div>
@@ -361,7 +504,8 @@ function treeClick(item) {
 
   $('input[type="color"]').spectrum({
     preferredFormat: 'rgb',
-    showAlpha: true
+    showAlpha: true,
+    chooseText: 'pick'
   });
 }
 
@@ -695,7 +839,12 @@ async function fillWithImageTexture(div, image) {
     let rw = image.width / width;
     let rh = image.height / height;
 
-    div.style.backgroundImage = 'url("https://uif.knightby.com/resource/' + image.texture.replace(/\\/g, '/').replace('.dxt', '.png') + '")';
+    if (resourceBlob[image.texture]) {
+      div.style.backgroundImage = 'url("' + resourceBlob[image.texture] + '")';
+    } else {
+      div.style.backgroundImage = 'url("https://uif.knightby.com/resource/' + image.texture.replace(/\\/g, '/').replace('.dxt', '.png') + '")';
+    }
+
     div.style.backgroundSize = (imgData.image.width * rw) + 'px ' + (imgData.image.height * rh) + 'px';
     div.style.backgroundPositionX = '-' + (image.crop.left * imgData.image.width * rw) + 'px';
     div.style.backgroundPositionY = '-' + (image.crop.top * imgData.image.height * rh) + 'px';
@@ -711,6 +860,17 @@ function getImage(img) {
       resolve({ noimage: true, blank: true, image: noimage });
     });
   }
+
+  if (resourceBlob[img]) {
+    return new Promise(resolve => {
+      let imgDom = document.createElement('img');
+      imgDom.src = resourceBlob[img];
+      imgDom.onload = function () {
+        resolve({ image: imgDom });
+      };
+    });
+  }
+
   img = img.split('.');
   img.pop();
   img = img.join('.') + '.png';
@@ -728,6 +888,7 @@ function getImage(img) {
     };
 
     imgDom.onerror = async function () {
+      Metro.toast.create("Missing texture: " + img, null, 5000, "warning");
       let noimage = await getImage('/noimage.png');
       _imageCache[img] = { noimage: true, blank: false, image: noimage.image };
       resolve({ noimage: true, blank: false, image: noimage });
@@ -772,7 +933,54 @@ function loading(percent, lastState) {
 
 // }, 50);
 
+function generateDataUrl(input) {
+  return new Promise(resolve => {
+    if (input.files && input.files[0]) {
+      var reader = new FileReader();
+
+      reader.onload = function (e) {
+        resolve(e.target.result);
+      };
+
+      reader.readAsDataURL(input.files[0]);
+    }
+  });
+}
+
+function checkDimensions(url) {
+  return new Promise((resolve, reject) => {
+    let img = document.createElement('img');
+    img.src = url;
+    img.style.display = 'none';
+    let valid = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048];
+
+    img.onload = function () {
+      if (!valid.some(x => x == img.width)) {
+        return reject(new Error('Image width resolution should be power of 2! (eg: 32, 64, 128, 256, 512)'));
+      }
+      if (!valid.some(x => x == img.height)) {
+        return reject(new Error('Image height resolution should be power of 2! (eg: 32, 64, 128, 256, 512)'));
+      }
+
+      resolve();
+    }
+
+    img.onerror = function () {
+      reject(new Error('Invalid image'));
+    }
+  });
+}
+
+function generateBlobUrl(dataurl) {
+  var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+    bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+
+  return URL.createObjectURL(new Blob([u8arr], { type: mime }));
+}
+
 setTimeout(function () {
-  // $('.window').window();
   loading(100, '');
 }, 50);
