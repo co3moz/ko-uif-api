@@ -375,16 +375,16 @@ function treeClick(item) {
         { key: 'y', type: 'number' },
         { key: 'width', type: 'number' },
         { key: 'height', type: 'number' },
-        { key: 'mov_x', type: 'number' },
-        { key: 'mov_y', type: 'number' },
-        { key: 'mov_width', type: 'number' },
-        { key: 'mov_height', type: 'number' }
+        { key: 'mov_x', type: 'number', caption: 'movable x' },
+        { key: 'mov_y', type: 'number', caption: 'movable y' },
+        { key: 'mov_width', type: 'number', caption: 'movable width' },
+        { key: 'mov_height', type: 'number', caption: 'movable height' }
       ]
     },
     {
       category: 'others',
       children: [
-        { key: 'style', type: 'number' },
+        { key: 'style', type: 'number', caption: 'raw style' },
         { key: 'reserved', type: 'number' },
         { key: 'tooltip', type: 'text' },
         { key: 'sndOpen', type: 'text', caption: 'sound open' },
@@ -397,11 +397,11 @@ function treeClick(item) {
     cat.push({
       category: uif.type,
       children: [
-        { key: 'texture', type: 'text' },
-        { key: 'crop.left', type: 'number' },
-        { key: 'crop.top', type: 'number' },
-        { key: 'crop.right', type: 'number' },
-        { key: 'crop.bottom', type: 'number' },
+        { key: 'texture', type: 'text', caption: 'texture file' },
+        { key: 'crop.left', type: 'number', caption: 'crop left' },
+        { key: 'crop.top', type: 'number', caption: 'crop top' },
+        { key: 'crop.right', type: 'number', caption: 'crop right' },
+        { key: 'crop.bottom', type: 'number', caption: 'crop bottom' },
         { key: 'animFrame', type: 'number' }
       ]
     })
@@ -409,10 +409,10 @@ function treeClick(item) {
     cat.push({
       category: uif.type,
       children: [
-        { key: 'click_x', type: 'number' },
-        { key: 'click_y', type: 'number' },
-        { key: 'click_width', type: 'number' },
-        { key: 'click_height', type: 'number' },
+        { key: 'click_x', type: 'number', caption: 'click x' },
+        { key: 'click_y', type: 'number', caption: 'click y' },
+        { key: 'click_width', type: 'number', caption: 'click width' },
+        { key: 'click_height', type: 'number', caption: 'click height' },
         { key: 'sndOn', type: 'text', caption: 'sound hover' },
         { key: 'sndClick', type: 'text', caption: 'sound click' }
       ]
